@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "244102981865",
+    "project_id": "proyectolucho-de708",
+    "storage_bucket": "proyectolucho-de708.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:244102981865:android:9ed157905ad855fcf0e878",
+        "android_client_info": {
+          "package_name": "com.company.proyectolucho"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7wcZC4vKuwjPUCXVKd-5QIoye7WoJ2AA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
