@@ -52,6 +52,7 @@ class _CategoriasScreenState extends State<CategoriasScreen> {
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
+
                 final categories = snapshot.data!.docs;
 
                 final filteredCategories = categories.where((doc) {
@@ -85,11 +86,12 @@ class _CategoriasScreenState extends State<CategoriasScreen> {
   Widget _categoryItem(BuildContext context, String imagePath, String title) {
     return GestureDetector(
       onTap: () {
+        print("🟢 Enviando categoría: $title");
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => PlatosCategoriaScreen(
-              categoria: title.toLowerCase(),
+              categoria: title,
             ),
           ),
         );

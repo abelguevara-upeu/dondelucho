@@ -35,7 +35,6 @@ class _PlatosCategoriaScreenState extends State<PlatosCategoriaScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Barra de búsqueda
             TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -55,13 +54,11 @@ class _PlatosCategoriaScreenState extends State<PlatosCategoriaScreen> {
               },
             ),
             SizedBox(height: 16),
-            // Lista de platos desde Firestore
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
-                    .collection('categories')
-                    .doc(widget.categoria.toLowerCase())
                     .collection('platos')
+                    .where('disponible', isEqualTo: true) // 🔥 Solo disponibles
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -71,10 +68,13 @@ class _PlatosCategoriaScreenState extends State<PlatosCategoriaScreen> {
                     return Center(child: Text('No hay platos disponibles.'));
                   }
 
+                  final categoriaPantalla = widget.categoria.trim().toLowerCase();
+
                   final filteredPlatos = snapshot.data!.docs.where((doc) {
                     final data = doc.data() as Map<String, dynamic>;
-                    final nombre = data['nombre']?.toLowerCase() ?? '';
-                    return nombre.contains(_searchQuery);
+                    final categoria = (data['categoria'] ?? '').toString().trim().toLowerCase();
+                    final nombre = (data['nombre'] ?? '').toString().toLowerCase();
+                    return categoria == categoriaPantalla && nombre.contains(_searchQuery);
                   }).toList();
 
                   if (filteredPlatos.isEmpty) {
@@ -84,9 +84,11 @@ class _PlatosCategoriaScreenState extends State<PlatosCategoriaScreen> {
                   return ListView.builder(
                     itemCount: filteredPlatos.length,
                     itemBuilder: (context, index) {
-                      final data = filteredPlatos[index].data() as Map<String, dynamic>;
+                      final doc = filteredPlatos[index];
+                      final data = doc.data() as Map<String, dynamic>;
                       return _buildDishItem(
                         context,
+                        doc.id,
                         data['nombre'] ?? 'Nombre no disponible',
                         data['descripcion'] ?? 'Descripción no disponible',
                         data['imagen'] ?? '',
@@ -106,6 +108,7 @@ class _PlatosCategoriaScreenState extends State<PlatosCategoriaScreen> {
 
   Widget _buildDishItem(
     BuildContext context,
+    String idPlato,
     String title,
     String description,
     String imageUrl,
@@ -118,6 +121,7 @@ class _PlatosCategoriaScreenState extends State<PlatosCategoriaScreen> {
           context,
           MaterialPageRoute(
             builder: (context) => DetallePlatoScreen(
+              idPlato: idPlato,
               title: title,
               description: description,
               imageUrl: imageUrl,

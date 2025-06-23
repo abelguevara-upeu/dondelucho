@@ -49,7 +49,10 @@ class _AdminPlatosScreenState extends State<AdminPlatosScreen> {
   void _agregarPregunta() {
     if (_preguntaController.text.isNotEmpty && _opciones.isNotEmpty) {
       setState(() {
-        _preguntas.add({"pregunta": _preguntaController.text.trim(), "opciones": List.from(_opciones)});
+        _preguntas.add({
+          "pregunta": _preguntaController.text.trim(),
+          "opciones": List.from(_opciones)
+        });
         _preguntaController.clear();
         _opciones.clear();
       });
@@ -70,23 +73,20 @@ class _AdminPlatosScreenState extends State<AdminPlatosScreen> {
     String fileName = DateTime.now().millisecondsSinceEpoch.toString();
     final storageRef = FirebaseStorage.instance
         .ref()
-        .child('categories/${widget.categoryName}/platos/$fileName');
+        .child('platos/${widget.categoryName}/$fileName');
 
     try {
       await storageRef.putFile(_selectedImage!);
       String imageUrl = await storageRef.getDownloadURL();
 
-      // Guardar el plato en Firestore con preguntas y opciones
-      await FirebaseFirestore.instance
-          .collection('categories')
-          .doc(widget.categoryName.toLowerCase())
-          .collection('platos')
-          .add({
+      await FirebaseFirestore.instance.collection('platos').add({
         'nombre': _nombreController.text.trim(),
         'descripcion': _descripcionController.text.trim(),
         'precio': double.parse(_precioController.text.trim()),
         'imagen': imageUrl,
+        'categoria': widget.categoryName,
         'preguntas': _preguntas,
+        'disponible': true, // 👈 agregado por defecto
       });
 
       setState(() {
@@ -112,13 +112,7 @@ class _AdminPlatosScreenState extends State<AdminPlatosScreen> {
 
   Future<void> _deletePlato(String docId, String imageUrl) async {
     try {
-      await FirebaseFirestore.instance
-          .collection('categories')
-          .doc(widget.categoryName.toLowerCase())
-          .collection('platos')
-          .doc(docId)
-          .delete();
-
+      await FirebaseFirestore.instance.collection('platos').doc(docId).delete();
       await FirebaseStorage.instance.refFromURL(imageUrl).delete();
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -126,6 +120,16 @@ class _AdminPlatosScreenState extends State<AdminPlatosScreen> {
       );
     } catch (e) {
       print("Error al eliminar plato: $e");
+    }
+  }
+
+  Future<void> _toggleDisponible(String docId, bool actual) async {
+    try {
+      await FirebaseFirestore.instance.collection('platos').doc(docId).update({
+        'disponible': !actual,
+      });
+    } catch (e) {
+      print("Error al actualizar disponibilidad: $e");
     }
   }
 
@@ -211,9 +215,8 @@ class _AdminPlatosScreenState extends State<AdminPlatosScreen> {
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
-                  .collection('categories')
-                  .doc(widget.categoryName.toLowerCase())
                   .collection('platos')
+                  .where('categoria', isEqualTo: widget.categoryName)
                   .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
@@ -222,13 +225,23 @@ class _AdminPlatosScreenState extends State<AdminPlatosScreen> {
                 return ListView(
                   children: snapshot.data!.docs.map((doc) {
                     final data = doc.data() as Map<String, dynamic>;
+                    final disponible = data['disponible'] ?? true;
                     return ListTile(
                       leading: Image.network(data['imagen'], height: 50, width: 50, fit: BoxFit.cover),
                       title: Text(data['nombre']),
                       subtitle: Text(data['descripcion']),
-                      trailing: IconButton(
-                        icon: Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _deletePlato(doc.id, data['imagen']),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(disponible ? Icons.visibility : Icons.visibility_off, color: Colors.grey),
+                            onPressed: () => _toggleDisponible(doc.id, disponible),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => _deletePlato(doc.id, data['imagen']),
+                          ),
+                        ],
                       ),
                     );
                   }).toList(),

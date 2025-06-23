@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:proyectolucho/provider/cart_provider.dart';
+import '../provider/cart_provider.dart';
 
 class DetallePlatoScreen extends StatefulWidget {
+  final String idPlato;
   final String title;
   final String description;
   final String imageUrl;
   final double price;
-  final List<Map<String, dynamic>> preguntas; // Cambiado a List<Map<String, dynamic>>
+  final List<Map<String, dynamic>> preguntas;
 
   DetallePlatoScreen({
+    required this.idPlato,
     required this.title,
     required this.description,
     required this.imageUrl,
@@ -21,7 +26,7 @@ class DetallePlatoScreen extends StatefulWidget {
 }
 
 class _DetallePlatoScreenState extends State<DetallePlatoScreen> {
-  Map<String, String> selectedOptions = {}; // Para almacenar las opciones seleccionadas por pregunta
+  Map<String, String> selectedOptions = {};
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +42,6 @@ class _DetallePlatoScreenState extends State<DetallePlatoScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Imagen del plato
             Image.network(widget.imageUrl, height: 250, width: double.infinity, fit: BoxFit.cover),
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -63,7 +67,6 @@ class _DetallePlatoScreenState extends State<DetallePlatoScreen> {
                 style: TextStyle(fontSize: 16),
               ),
             ),
-            // Preguntas dinámicas con sus opciones
             if (widget.preguntas.isNotEmpty)
               ...widget.preguntas.map((pregunta) {
                 String preguntaTexto = pregunta['pregunta'] ?? 'Pregunta no disponible';
@@ -83,7 +86,7 @@ class _DetallePlatoScreenState extends State<DetallePlatoScreen> {
                           return RadioListTile(
                             title: Text(opcion),
                             value: opcion,
-                            groupValue: selectedOptions[preguntaTexto], // Valor seleccionado para esta pregunta
+                            groupValue: selectedOptions[preguntaTexto],
                             onChanged: (value) {
                               setState(() {
                                 selectedOptions[preguntaTexto] = value.toString();
@@ -96,12 +99,10 @@ class _DetallePlatoScreenState extends State<DetallePlatoScreen> {
                   ),
                 );
               }).toList(),
-            // Botón "Añadir al carrito"
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton.icon(
                 onPressed: () {
-                  // Validar que todas las preguntas tengan una respuesta
                   if (selectedOptions.length != widget.preguntas.length) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -110,21 +111,27 @@ class _DetallePlatoScreenState extends State<DetallePlatoScreen> {
                       ),
                     );
                   } else {
-                    // Lógica para añadir al carrito
+                    Provider.of<CartProvider>(context, listen: false).addItem(
+                      CartItem(
+                        idPlato: widget.idPlato,
+                        nombre: widget.title,
+                        descripcion: widget.description,
+                        imagen: widget.imageUrl,
+                        precio: widget.price,
+                      ),
+                    );
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text("Añadido al carrito correctamente."),
-                        backgroundColor: const Color.fromARGB(255, 0, 121, 0),
+                        backgroundColor: Color(0xFF007900),
                       ),
                     );
                   }
                 },
                 icon: Icon(Icons.shopping_cart, color: Colors.white),
                 label: Text(
-                  "(1) Añadir al carrito: s/${widget.price}",
-                  style: TextStyle(
-                    color: Colors.white, // Cambiado el color de la letra a blanco
-                  ),
+                  "(1) Añadir al carrito: s/\${widget.price}",
+                  style: TextStyle(color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xF2642424),
