@@ -23,7 +23,26 @@ class CartItem {
 class CartProvider with ChangeNotifier {
   final List<CartItem> _items = [];
 
+  // 🔽 NUEVOS CAMPOS PARA DIRECCIÓN Y REFERENCIA
+  String _direccion = '';
+  String _referencia = '';
+
   List<CartItem> get items => _items;
+
+  // 🔽 NUEVOS GETTERS
+  String get direccion => _direccion;
+  String get referencia => _referencia;
+
+  // 🔽 NUEVOS SETTERS
+  void setDireccion(String direccion) {
+    _direccion = direccion;
+    notifyListeners();
+  }
+
+  void setReferencia(String referencia) {
+    _referencia = referencia;
+    notifyListeners();
+  }
 
   void addItem(CartItem item) {
     final index = _items.indexWhere((element) => element.idPlato == item.idPlato);

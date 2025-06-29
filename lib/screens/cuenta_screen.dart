@@ -121,6 +121,7 @@ class _CuentaScreenState extends State<CuentaScreen> {
             buildBoton('Número de telefono', () => editarCampo('Editar Número de telefono', 'telefono', telefono)),
             buildBoton('Direcciones de entrega', () => editarCampo('Dirección', 'direccion', direccion)),
             buildBoton('Libro de reclamaciones', () {}),
+            buildBoton('Mis reservas', () => Navigator.pushNamed(context, '/mis_reservas_screen')),
             buildBoton('Eliminar Cuenta', confirmarEliminacionCuenta),
             buildBoton('Cerrar Sesión', () async {
               await FirebaseAuth.instance.signOut();
@@ -142,4 +143,4 @@ class _CuentaScreenState extends State<CuentaScreen> {
       ),
     );
   }
-} 
+}

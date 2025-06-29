@@ -2,12 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:proyectolucho/admin/admin_cuenta_screen.dart';
+import 'package:proyectolucho/screens/ubicacion_screen.dart';
 
 import 'screens/splash_screen.dart';
 import 'admin/AdminHomeScreen.dart';
 import 'admin/AdminCategoryScreen.dart';
 import 'provider/cart_provider.dart';
-import 'screens/carrito.screen.dart'; // 👈 AÑADIDO
+import 'screens/carrito.screen.dart'; 
+import 'screens/mis_reservas_screen.dart';
+import 'admin/AdminReservasScreen.dart';
+import 'admin/admin_cuenta_screen.dart';
+import 'screens/ubicacion_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,8 +55,11 @@ class MyApp extends StatelessWidget {
         '/categorias': (context) => AdminCategoryScreen(),
         '/promociones': (context) => Center(child: Text("Promociones Admin")),
         '/pedidos': (context) => Center(child: Text("Pedidos Admin")),
-        '/cuenta': (context) => Center(child: Text("Cuenta Admin")),
+        '/cuenta': (context) => AdminCuentaScreen(),
         '/cart': (context) => const CartScreen(), // ✅ AÑADIDO
+        '/mis_reservas_screen': (context) => MisReservasScreen(),
+        '/adminReservas': (context) => const AdminReservasScreen(),
+        '/ubicacion': (context) => UbicacionScreen(),
       },
     );
   }

@@ -83,7 +83,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         Navigator.pushNamed(context, '/pedidos');
         break;
       case 4:
-        Navigator.pushNamed(context, '/cuenta');
+        Navigator.pushNamed(context, '/adminReservas');
         break;
     }
   }

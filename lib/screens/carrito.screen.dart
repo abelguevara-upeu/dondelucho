@@ -68,11 +68,7 @@ class CartScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton.icon(
               onPressed: () {
-                // Aquí iría lógica para confirmar el pedido
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Pedido confirmado.")),
-                );
-                cart.clearCart();
+                Navigator.pushNamed(context, '/ubicacion');
               },
               icon: const Icon(Icons.shopping_cart),
               label: Text("(${cart.items.length}) Confirmar carrito: s/ ${cart.total.toStringAsFixed(2)}"),
